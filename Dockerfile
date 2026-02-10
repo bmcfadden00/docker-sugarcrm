@@ -1,8 +1,7 @@
-FROM php:5.6-apache-jessie
+FROM php:8.2-apache
 
-ENV MAJOR_VERSION 6.5
-ENV MINOR_VERSION 26
-ENV SOURCEFORGE_MIRROR http://downloads.sourceforge.net
+ENV MAJOR_VERSION 25.1
+ENV MINOR_VERSION 2
 ENV WWW_FOLDER /var/www/html
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -11,19 +10,25 @@ RUN apt-get update && apt-get upgrade -y && \
 
 WORKDIR /tmp
 
-RUN curl -v -L -O "https://sourceforge.net/projects/sugarcrm/files/OldFiles/1%20-%20SugarCRM%20${MAJOR_VERSION}.X/SugarCommunityEdition-${MAJOR_VERSION}.X/SugarCE-${MAJOR_VERSION}.${MINOR_VERSION}.zip" &&\
-      md5sum SugarCE-${MAJOR_VERSION}.${MINOR_VERSION}.zip >/dev/stderr && unzip SugarCE-${MAJOR_VERSION}.${MINOR_VERSION}.zip && \
-	rm -rf ${WWW_FOLDER}/* && \
-	cp -R /tmp/SugarCE-Full-${MAJOR_VERSION}.${MINOR_VERSION}/* ${WWW_FOLDER}/ && \
-	chown -R www-data:www-data ${WWW_FOLDER}/* && \
-	chown -R www-data:www-data ${WWW_FOLDER}
+# RUN curl -v -L -O "https://sourceforge.net/projects/sugarcrm/files/OldFiles/1%20-%20SugarCRM%20${MAJOR_VERSION}.X/SugarCommunityEdition-${MAJOR_VERSION}.X/SugarCE-${MAJOR_VERSION}.${MINOR_VERSION}.zip" &&\
+#       md5sum SugarCE-${MAJOR_VERSION}.${MINOR_VERSION}.zip >/dev/stderr && unzip SugarCE-${MAJOR_VERSION}.${MINOR_VERSION}.zip && \
+# 	rm -rf ${WWW_FOLDER}/* && \
+# 	cp -R /tmp/SugarCE-Full-${MAJOR_VERSION}.${MINOR_VERSION}/* ${WWW_FOLDER}/ && \
+# 	chown -R www-data:www-data ${WWW_FOLDER}/* && \
+# 	chown -R www-data:www-data ${WWW_FOLDER}
 
+COPY SugarEnt-${MAJOR_VERSION}.${MINOR_VERSION}.zip ${WWW_FOLDER}/SugarEnt-${MAJOR_VERSION}.${MINOR_VERSION}.zip
+RUN unzip ${WWW_FOLDER}/SugarEnt-${MAJOR_VERSION}.${MINOR_VERSION}.zip && \
+    rm SugarEnt-${MAJOR_VERSION}.${MINOR_VERSION}.zip && \
+	chown -R www-data:www-data ${WWW_FOLDER}
 # RUN sed -i 's/^upload_max_filesize = 2M$/upload_max_filesize = 10M/' /usr/local/etc/php/php.ini
 
 COPY docker-php-ext-filesize.ini /usr/local/etc/php/conf.d/docker-php-ext-filesize.ini
+COPY docker-php-ext-sugar.ini /usr/local/etc/php/conf.d/docker-php-ext-sugar.ini
 
 RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
-    docker-php-ext-install imap mysql zip gd
+    docker-php-ext-install bcmath curl gd gmp hash imap json mbstring \
+	openssl SimpleXML soap zip zlib libsodium
 
 ADD config_override.php.pyt /usr/local/src/config_override.php.pyt
 ADD envtemplate.py /usr/local/bin/envtemplate.py

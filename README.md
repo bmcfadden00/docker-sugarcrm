@@ -6,8 +6,9 @@ The [full Github project](https://github.com/Spantree/docker-sugarcrm) defines a
 
 1. Install [Docker and Docker Compose](https://docs.docker.com/compose/install/)
 2. Clone the [project](https://github.com/Spantree/docker-sugarcrm) from Github.
-3. Run `docker-compose up` from the root of this project.
-4. Access `http://{docker_host}:2080` from your web browser to finish setting up SugarCRM.
+3. Copy SugarEnt25.1.2.zip into the project root.
+4. Run `docker-compose up` from the root of this project.
+5. Access `http://{docker_host}:2080` from your web browser to finish setting up SugarCRM.
 
 ### Running with Docker Run
 
